@@ -18,26 +18,51 @@
         
         body {
             font-family: 'Vazirmatn', Tahoma, sans-serif;
-            background: #F5F5F0;
+            background: var(--bg-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             padding: 0;
+            transition: background 0.3s;
+        }
+        
+        :root {
+            --bg-primary: #F5F5F0;
+            --bg-secondary: #FEFCE8;
+            --bg-card: #FFFFFF;
+            --text-primary: #78350F;
+            --text-secondary: #A16207;
+            --text-tertiary: #CA8A04;
+            --accent: #FDE68A;
+            --accent-dark: #FCD34D;
+            --border: #FEF3C7;
+        }
+        
+        body.dark-mode {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2A2A2A;
+            --bg-card: #333333;
+            --text-primary: #FDE68A;
+            --text-secondary: #FCD34D;
+            --text-tertiary: #FCA5A5;
+            --accent: #78350F;
+            --accent-dark: #92400E;
+            --border: #404040;
         }
         
         .app-container {
             width: 100%;
             max-width: 440px;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             overflow: hidden;
             min-height: 100vh;
         }
         
         .header {
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             padding: 16px 20px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .header-top {
@@ -46,7 +71,7 @@
             align-items: flex-start;
             margin-bottom: 12px;
             font-size: 11px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .header-date {
@@ -59,6 +84,28 @@
             line-height: 1.5;
         }
         
+        .dark-mode-toggle {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .dark-mode-toggle:active {
+            transform: translateX(-50%) scale(0.9);
+        }
+        
         .header-center {
             text-align: center;
         }
@@ -67,21 +114,21 @@
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 4px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .header-subtitle {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
             font-weight: 400;
         }
         
         .tabs {
             display: flex;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             padding: 12px 16px;
             gap: 8px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .tab {
@@ -93,13 +140,13 @@
             transition: all 0.2s;
             font-size: 13px;
             font-weight: 500;
-            color: #A16207;
+            color: var(--text-secondary);
             background: transparent;
         }
         
         .tab.active {
-            background: #FDE68A;
-            color: #78350F;
+            background: var(--accent);
+            color: var(--text-primary);
         }
         
         .content {
@@ -107,7 +154,7 @@
             padding: 16px;
             max-height: calc(100vh - 140px);
             overflow-y: auto;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
         }
         
         .content.active {
@@ -119,7 +166,7 @@
         }
         
         .chapter-item, .juz-item {
-            background: white;
+            background: var(--bg-card);
             margin-bottom: 10px;
             padding: 16px;
             border-radius: 16px;
@@ -129,24 +176,23 @@
             gap: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid #FEF3C7;
+            border: 1px solid var(--border);
         }
         
         .chapter-item:active, .juz-item:active {
             transform: scale(0.98);
-            background: #FFFBEB;
         }
         
         .chapter-number {
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: #FEF3C7;
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: #92400E;
+            color: var(--accent-dark);
             flex-shrink: 0;
             font-size: 15px;
         }
@@ -160,19 +206,19 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 3px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .chapter-trans {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
             margin-bottom: 2px;
             font-weight: 400;
         }
         
         .chapter-meta {
             font-size: 11px;
-            color: #CA8A04;
+            color: var(--text-tertiary);
             font-weight: 300;
         }
         
@@ -180,7 +226,7 @@
             width: 36px;
             height: 36px;
             border: none;
-            background: #FFFBEB;
+            background: var(--bg-secondary);
             cursor: pointer;
             font-size: 18px;
             flex-shrink: 0;
@@ -196,13 +242,13 @@
         }
         
         .bookmark-btn.active {
-            background: #FDE68A;
+            background: var(--accent);
         }
         
         .empty-state {
             text-align: center;
             padding: 80px 20px;
-            color: #CA8A04;
+            color: var(--text-tertiary);
         }
         
         .empty-state-icon {
@@ -219,13 +265,13 @@
         .juz-number {
             font-size: 17px;
             font-weight: 600;
-            color: #78350F;
+            color: var(--text-primary);
             margin-bottom: 3px;
         }
         
         .juz-info {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .modal {
@@ -246,7 +292,7 @@
         }
         
         .modal-content {
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             border-radius: 24px 24px 0 0;
             max-width: 440px;
             width: 100%;
@@ -265,20 +311,20 @@
         }
         
         .modal-header {
-            background: white;
+            background: var(--bg-card);
             padding: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .modal-close {
             width: 32px;
             height: 32px;
             border: none;
-            background: #FEF3C7;
-            color: #92400E;
+            background: var(--accent);
+            color: var(--accent-dark);
             border-radius: 8px;
             cursor: pointer;
             font-size: 18px;
@@ -301,21 +347,21 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 3px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .modal-chapter-info {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .modal-controls {
-            background: white;
+            background: var(--bg-card);
             padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .toggle-translation {
@@ -323,7 +369,7 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            color: #78350F;
+            color: var(--text-primary);
             font-weight: 500;
         }
         
@@ -331,14 +377,14 @@
             position: relative;
             width: 44px;
             height: 24px;
-            background: #E5E7EB;
+            background: var(--border);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
         .switch.active {
-            background: #FDE68A;
+            background: var(--accent);
         }
         
         .switch-thumb {
@@ -358,10 +404,10 @@
         }
         
         .modal-body {
-            padding: 16px 20px;
+            padding: 12px 20px 20px;
             max-height: calc(90vh - 160px);
             overflow-y: auto;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
         }
         
         .modal-body::-webkit-scrollbar {
@@ -369,43 +415,42 @@
         }
         
         .verse-item {
-            background: white;
-            padding: 16px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            border: 1px solid #FEF3C7;
+            margin-bottom: 8px;
+            padding: 0;
         }
         
         .verse-number {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 26px;
+            min-width: 26px;
             height: 26px;
-            background: #FDE68A;
-            color: #92400E;
+            padding: 0 8px;
+            background: var(--accent);
+            color: var(--accent-dark);
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-left: 8px;
         }
         
         .verse-text {
             font-size: 20px;
             line-height: 2;
-            color: #78350F;
-            margin-bottom: 10px;
+            color: var(--text-primary);
             font-weight: 500;
             text-align: justify;
+            display: inline;
         }
         
         .verse-trans {
             font-size: 13px;
-            color: #A16207;
-            line-height: 1.7;
+            color: var(--text-secondary);
+            line-height: 1.8;
             font-weight: 400;
-            padding-top: 10px;
-            border-top: 1px solid #FEF3C7;
+            margin-top: 8px;
+            display: block;
+            padding-right: 34px;
         }
         
         .verse-trans.hidden {
@@ -451,6 +496,7 @@
 <body>
     <div class="app-container">
         <div class="header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
             <div class="header-top">
                 <div class="header-date">
                     <div id="shamsiDate"></div>
