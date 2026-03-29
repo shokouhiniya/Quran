@@ -1,3 +1,75 @@
+// Persian/Hijri date utilities
+function toJalaali(gy, gm, gd) {
+    const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    const jy = (gy <= 1600) ? 0 : 979;
+    gy -= (gy <= 1600) ? 621 : 1600;
+    const gy2 = (gm > 2) ? (gy + 1) : gy;
+    let days = (365 * gy) + (Math.floor((gy2 + 3) / 4)) - (Math.floor((gy2 + 99) / 100)) + (Math.floor((gy2 + 399) / 400)) - 80 + gd + g_d_m[gm - 1];
+    const jy2 = jy + 33 * Math.floor(days / 12053);
+    days %= 12053;
+    let jy3 = jy2 + 4 * Math.floor(days / 1461);
+    days %= 1461;
+    jy3 += Math.floor((days - 1) / 365);
+    if (days > 365) days = (days - 1) % 365;
+    const jm = (days < 186) ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+    const jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+    return [jy3, jm, jd];
+}
+
+function toHijri(date) {
+    const gYear = date.getFullYear();
+    const gMonth = date.getMonth() + 1;
+    const gDay = date.getDate();
+    
+    let iy = gYear;
+    let im = gMonth;
+    let id = gDay;
+    
+    let iTotal = (iy - 1) * 365 + Math.floor((iy - 1) / 4) - Math.floor((iy - 1) / 100) + Math.floor((iy - 1) / 400);
+    const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    
+    for (let i = 0; i < im - 1; i++) {
+        iTotal += monthDays[i];
+    }
+    
+    if (im > 2 && ((iy % 4 === 0 && iy % 100 !== 0) || (iy % 400 === 0))) {
+        iTotal++;
+    }
+    
+    iTotal += id;
+    
+    const hTotal = iTotal - 227015;
+    const hYear = Math.floor((30 * hTotal + 10646) / 10631);
+    const hMonth = Math.ceil((hTotal - (Math.floor((hYear * 10631 - 10646) / 30))) / 29.5);
+    const hDay = hTotal - Math.floor((hYear * 10631 - 10646) / 30) - Math.floor((hMonth - 1) * 29.5) + 1;
+    
+    return [Math.floor(hYear), Math.floor(hMonth), Math.floor(hDay)];
+}
+
+const persianMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+const hijriMonths = ['محرم', 'صفر', 'ربیع‌الاول', 'ربیع‌الثانی', 'جمادی‌الاول', 'جمادی‌الثانی', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذی‌القعده', 'ذی‌الحجه'];
+const persianDays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+
+function updateDateTime() {
+    const now = new Date();
+    
+    // Shamsi date
+    const [jy, jm, jd] = toJalaali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    document.getElementById('shamsiDate').textContent = `${jd} ${persianMonths[jm - 1]} ${jy}`;
+    
+    // Hijri date
+    const [hy, hm, hd] = toHijri(now);
+    document.getElementById('qamariDate').textContent = `${hd} ${hijriMonths[hm - 1]} ${hy}`;
+    
+    // Clock
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${hours}:${minutes}`;
+    
+    // Day of week
+    document.getElementById('dayOfWeek').textContent = persianDays[now.getDay()];
+}
+
 // Load bookmarks from localStorage
 function getBookmarks() {
     const saved = localStorage.getItem('quran_bookmarks');
@@ -52,16 +124,21 @@ async function openChapter(chapterId) {
     modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری...</div>';
     
     try {
-        const response = await fetch(`https://cdn.jsdelivr.net/npm/quran-json@3.1.2/dist/chapters/fa/${chapterId}.json`);
-        const data = await response.json();
+        // Get Arabic text
+        const arabicRes = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quran/${chapterId}.json`);
+        const arabicData = await arabicRes.json();
+        
+        // Get Persian translation
+        const persianRes = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/fas-hussainansarian/${chapterId}.json`);
+        const persianData = await persianRes.json();
         
         const showTrans = localStorage.getItem('show_translation') !== 'false';
         
-        modalBody.innerHTML = data.verses.map(verse => `
+        modalBody.innerHTML = arabicData.chapter.map((verse, index) => `
             <div class="verse-item">
-                <div class="verse-number">${verse.id}</div>
+                <div class="verse-number">${verse.verse}</div>
                 <div class="verse-text">${verse.text}</div>
-                ${verse.translation ? `<div class="verse-trans ${showTrans ? '' : 'hidden'}">${verse.translation}</div>` : ''}
+                ${persianData.chapter[index] ? `<div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianData.chapter[index].text}</div>` : ''}
             </div>
         `).join('');
     } catch (error) {
@@ -165,6 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         switchEl.classList.remove('active');
     }
 });
+
+// Update date and time
+updateDateTime();
+setInterval(updateDateTime, 60000); // Update every minute
 
 // Initial render
 renderAll();

@@ -36,9 +36,31 @@
         
         .header {
             background: #FEFCE8;
-            padding: 20px 20px 16px;
-            text-align: center;
+            padding: 16px 20px;
             border-bottom: 1px solid #FEF3C7;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: #A16207;
+        }
+        
+        .header-date {
+            text-align: right;
+            line-height: 1.5;
+        }
+        
+        .header-time {
+            text-align: left;
+            line-height: 1.5;
+        }
+        
+        .header-center {
+            text-align: center;
         }
         
         .header-title {
@@ -429,8 +451,20 @@
 <body>
     <div class="app-container">
         <div class="header">
-            <div class="header-title">قرآن کریم</div>
-            <div class="header-subtitle">114 سوره • 30 جز</div>
+            <div class="header-top">
+                <div class="header-date">
+                    <div id="shamsiDate"></div>
+                    <div id="qamariDate"></div>
+                </div>
+                <div class="header-time">
+                    <div id="clock"></div>
+                    <div id="dayOfWeek"></div>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="header-title">قرآن کریم</div>
+                <div class="header-subtitle">114 سوره • 30 جز</div>
+            </div>
         </div>
         
         <div class="tabs">
