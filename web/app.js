@@ -124,21 +124,20 @@ async function openChapter(chapterId) {
     modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری...</div>';
     
     try {
-        // Get Arabic text
-        const arabicRes = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quran/${chapterId}.json`);
-        const arabicData = await arabicRes.json();
+        // Get Arabic text with Persian translation
+        const response = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-uthmani,fa.fooladvand`);
+        const data = await response.json();
         
-        // Get Persian translation
-        const persianRes = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/fas-hussainansarian/${chapterId}.json`);
-        const persianData = await persianRes.json();
+        const arabicVerses = data.data[0].ayahs;
+        const persianVerses = data.data[1].ayahs;
         
         const showTrans = localStorage.getItem('show_translation') !== 'false';
         
-        modalBody.innerHTML = arabicData.chapter.map((verse, index) => `
+        modalBody.innerHTML = arabicVerses.map((verse, index) => `
             <div class="verse-item">
-                <div class="verse-number">${verse.verse}</div>
+                <div class="verse-number">${verse.numberInSurah}</div>
                 <div class="verse-text">${verse.text}</div>
-                ${persianData.chapter[index] ? `<div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianData.chapter[index].text}</div>` : ''}
+                <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
             </div>
         `).join('');
     } catch (error) {
