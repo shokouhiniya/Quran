@@ -135,8 +135,8 @@ async function openChapter(chapterId) {
         
         modalBody.innerHTML = arabicVerses.map((verse, index) => `
             <div class="verse-item">
-                <div class="verse-number">${verse.numberInSurah}</div>
-                <div class="verse-text">${verse.text}</div>
+                <span class="verse-number">${verse.numberInSurah}</span>
+                <span class="verse-text">${verse.text}</span>
                 <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
             </div>
         `).join('');
@@ -245,6 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Update date and time
 updateDateTime();
 setInterval(updateDateTime, 60000); // Update every minute
+
+// Dark mode
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('dark_mode', isDark);
+    document.querySelector('.dark-mode-toggle').textContent = isDark ? '☀️' : '🌙';
+}
+
+// Load dark mode preference
+if (localStorage.getItem('dark_mode') === 'true') {
+    document.body.classList.add('dark-mode');
+    document.querySelector('.dark-mode-toggle').textContent = '☀️';
+}
 
 // Initial render
 renderAll();
