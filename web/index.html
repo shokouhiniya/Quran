@@ -551,15 +551,10 @@
         }
         
         .page-juz-indicator {
-            position: sticky;
-            top: 0;
-            background: var(--bg-card);
-            padding: 8px 12px;
-            text-align: left;
-            font-size: 11px;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-            z-index: 5;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            text-align: center;
         }
         
         .verse-item {
@@ -696,6 +691,7 @@
                 <div class="modal-title">
                     <div class="modal-chapter-name" id="modalChapterName"></div>
                     <div class="modal-chapter-info" id="modalChapterInfo"></div>
+                    <div class="page-juz-indicator" id="pageJuzIndicator" style="display: none;">صفحه: ... | جز: ...</div>
                 </div>
             </div>
             <div class="modal-controls">
@@ -729,7 +725,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=8"></script>
-    <script src="app.js?v=8"></script>
+    <script src="data.js?v=12"></script>
+    <script src="app.js?v=12"></script>
 </body>
 </html>

@@ -18,26 +18,51 @@
         
         body {
             font-family: 'Vazirmatn', Tahoma, sans-serif;
-            background: #F5F5F0;
+            background: var(--bg-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             padding: 0;
+            transition: background 0.3s;
+        }
+        
+        :root {
+            --bg-primary: #F5F5F0;
+            --bg-secondary: #FEFCE8;
+            --bg-card: #FFFFFF;
+            --text-primary: #78350F;
+            --text-secondary: #A16207;
+            --text-tertiary: #CA8A04;
+            --accent: #FDE68A;
+            --accent-dark: #FCD34D;
+            --border: #FEF3C7;
+        }
+        
+        body.dark-mode {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2A2A2A;
+            --bg-card: #333333;
+            --text-primary: #FDE68A;
+            --text-secondary: #FCD34D;
+            --text-tertiary: #FCA5A5;
+            --accent: #78350F;
+            --accent-dark: #92400E;
+            --border: #404040;
         }
         
         .app-container {
             width: 100%;
             max-width: 440px;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             overflow: hidden;
             min-height: 100vh;
         }
         
         .header {
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             padding: 16px 20px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .header-top {
@@ -46,7 +71,7 @@
             align-items: flex-start;
             margin-bottom: 12px;
             font-size: 11px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .header-date {
@@ -59,6 +84,105 @@
             line-height: 1.5;
         }
         
+        .dark-mode-toggle {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .dark-mode-toggle:active {
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        .search-page-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        
+        .search-page-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .download-all-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        
+        .download-all-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .download-all-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .download-all-btn.downloading {
+            animation: pulse 1s infinite;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .download-all-btn.completed {
+            background: #86EFAC;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
         .header-center {
             text-align: center;
         }
@@ -67,21 +191,21 @@
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 4px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .header-subtitle {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
             font-weight: 400;
         }
         
         .tabs {
             display: flex;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
             padding: 12px 16px;
             gap: 8px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .tab {
@@ -93,13 +217,13 @@
             transition: all 0.2s;
             font-size: 13px;
             font-weight: 500;
-            color: #A16207;
+            color: var(--text-secondary);
             background: transparent;
         }
         
         .tab.active {
-            background: #FDE68A;
-            color: #78350F;
+            background: var(--accent);
+            color: var(--text-primary);
         }
         
         .content {
@@ -107,7 +231,7 @@
             padding: 16px;
             max-height: calc(100vh - 140px);
             overflow-y: auto;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
         }
         
         .content.active {
@@ -119,7 +243,7 @@
         }
         
         .chapter-item, .juz-item {
-            background: white;
+            background: var(--bg-card);
             margin-bottom: 10px;
             padding: 16px;
             border-radius: 16px;
@@ -129,24 +253,23 @@
             gap: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid #FEF3C7;
+            border: 1px solid var(--border);
         }
         
         .chapter-item:active, .juz-item:active {
             transform: scale(0.98);
-            background: #FFFBEB;
         }
         
         .chapter-number {
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: #FEF3C7;
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: #92400E;
+            color: var(--accent-dark);
             flex-shrink: 0;
             font-size: 15px;
         }
@@ -160,19 +283,19 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 3px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .chapter-trans {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
             margin-bottom: 2px;
             font-weight: 400;
         }
         
         .chapter-meta {
             font-size: 11px;
-            color: #CA8A04;
+            color: var(--text-tertiary);
             font-weight: 300;
         }
         
@@ -180,7 +303,7 @@
             width: 36px;
             height: 36px;
             border: none;
-            background: #FFFBEB;
+            background: var(--bg-secondary);
             cursor: pointer;
             font-size: 18px;
             flex-shrink: 0;
@@ -196,13 +319,40 @@
         }
         
         .bookmark-btn.active {
-            background: #FDE68A;
+            background: var(--accent);
+        }
+        
+        .download-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .download-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .download-btn.downloaded {
+            background: #86EFAC;
+        }
+        
+        .download-btn.downloading {
+            animation: spin 1s linear infinite;
         }
         
         .empty-state {
             text-align: center;
             padding: 80px 20px;
-            color: #CA8A04;
+            color: var(--text-tertiary);
         }
         
         .empty-state-icon {
@@ -219,13 +369,13 @@
         .juz-number {
             font-size: 17px;
             font-weight: 600;
-            color: #78350F;
+            color: var(--text-primary);
             margin-bottom: 3px;
         }
         
         .juz-info {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .modal {
@@ -237,7 +387,7 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 1000;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
         }
         
@@ -246,11 +396,12 @@
         }
         
         .modal-content {
-            background: #FEFCE8;
-            border-radius: 24px 24px 0 0;
-            max-width: 440px;
+            background: var(--bg-secondary);
+            border-radius: 0;
+            max-width: 100%;
             width: 100%;
-            max-height: 90vh;
+            height: 100vh;
+            max-height: 100vh;
             overflow: hidden;
             animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -265,28 +416,28 @@
         }
         
         .modal-header {
-            background: white;
-            padding: 20px;
+            background: var(--bg-card);
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .modal-close {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border: none;
-            background: #FEF3C7;
-            color: #92400E;
-            border-radius: 8px;
+            background: var(--accent);
+            color: var(--accent-dark);
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
-            font-weight: 600;
+            font-weight: 700;
         }
         
         .modal-close:active {
@@ -301,21 +452,21 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 3px;
-            color: #78350F;
+            color: var(--text-primary);
         }
         
         .modal-chapter-info {
             font-size: 12px;
-            color: #A16207;
+            color: var(--text-secondary);
         }
         
         .modal-controls {
-            background: white;
+            background: var(--bg-card);
             padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #FEF3C7;
+            border-bottom: 1px solid var(--border);
         }
         
         .toggle-translation {
@@ -323,7 +474,7 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            color: #78350F;
+            color: var(--text-primary);
             font-weight: 500;
         }
         
@@ -331,14 +482,14 @@
             position: relative;
             width: 44px;
             height: 24px;
-            background: #E5E7EB;
+            background: var(--border);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
         .switch.active {
-            background: #FDE68A;
+            background: var(--accent);
         }
         
         .switch-thumb {
@@ -358,54 +509,91 @@
         }
         
         .modal-body {
-            padding: 16px 20px;
-            max-height: calc(90vh - 160px);
+            padding: 12px 20px 20px;
+            max-height: calc(100vh - 160px);
             overflow-y: auto;
-            background: #FEFCE8;
+            background: var(--bg-secondary);
         }
         
         .modal-body::-webkit-scrollbar {
             width: 0;
         }
         
-        .verse-item {
-            background: white;
+        .bismillah {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
             padding: 16px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            border: 1px solid #FEF3C7;
+            background: var(--bg-card);
+            border-radius: 12px;
+            line-height: 1.8;
+        }
+        
+        .page-marker {
+            border-bottom: 1px solid var(--border);
+            margin: 16px 0;
+            padding-bottom: 8px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        
+        .juz-marker {
+            border-bottom: 3px solid var(--accent-dark);
+            margin: 20px 0;
+            padding-bottom: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .page-juz-indicator {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            text-align: center;
+        }
+        
+        .verse-item {
+            margin-bottom: 8px;
+            padding: 0;
         }
         
         .verse-number {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 26px;
+            min-width: 26px;
             height: 26px;
-            background: #FDE68A;
-            color: #92400E;
+            padding: 0 8px;
+            background: var(--accent);
+            color: var(--accent-dark);
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-left: 8px;
         }
         
         .verse-text {
             font-size: 20px;
             line-height: 2;
-            color: #78350F;
-            margin-bottom: 10px;
+            color: var(--text-primary);
             font-weight: 500;
             text-align: justify;
+            display: inline;
         }
         
         .verse-trans {
             font-size: 13px;
-            color: #A16207;
-            line-height: 1.7;
+            color: var(--text-secondary);
+            line-height: 1.8;
             font-weight: 400;
-            padding-top: 10px;
-            border-top: 1px solid #FEF3C7;
+            margin-top: 8px;
+            display: block;
+            padding-right: 34px;
         }
         
         .verse-trans.hidden {
@@ -443,7 +631,14 @@
             }
             
             .modal-content {
+                max-width: 440px;
+                height: auto;
+                max-height: 95vh;
                 border-radius: 24px;
+            }
+            
+            .modal-body {
+                max-height: calc(95vh - 160px);
             }
         }
     </style>
@@ -451,6 +646,11 @@
 <body>
     <div class="app-container">
         <div class="header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+            <button class="search-page-btn" onclick="openPageSearch()" title="جستجوی صفحه">🔍</button>
+            <button class="download-all-btn" id="downloadAllBtn" onclick="downloadAllSurahs()" title="دانلود برای استفاده آفلاین">
+                📥
+            </button>
             <div class="header-top">
                 <div class="header-date">
                     <div id="shamsiDate"></div>
@@ -491,12 +691,13 @@
                 <div class="modal-title">
                     <div class="modal-chapter-name" id="modalChapterName"></div>
                     <div class="modal-chapter-info" id="modalChapterInfo"></div>
+                    <div class="page-juz-indicator" id="pageJuzIndicator" style="display: none;">صفحه: ... | جز: ...</div>
                 </div>
             </div>
             <div class="modal-controls">
                 <div class="toggle-translation">
                     <span>ترجمه فارسی</span>
-                    <div class="switch active" id="translationSwitch" onclick="toggleTranslation()">
+                    <div class="switch" id="translationSwitch" onclick="toggleTranslation()">
                         <div class="switch-thumb"></div>
                     </div>
                 </div>
@@ -504,8 +705,27 @@
             <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
+    
+    <div id="pageSearchModal" class="modal" onclick="closePageSearch(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closePageSearch()">✕</button>
+                <div class="modal-title">
+                    <div class="modal-chapter-name">جستجوی صفحه</div>
+                    <div class="modal-chapter-info">شماره صفحه را وارد کنید (1-604)</div>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <input type="number" id="pageNumberInput" min="1" max="604" placeholder="شماره صفحه (1-604)" 
+                    style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid var(--border); border-radius: 10px; text-align: center; background: var(--bg-card); color: var(--text-primary);">
+                <button onclick="goToPage()" style="width: 100%; margin-top: 12px; padding: 14px; font-size: 16px; background: var(--accent); color: var(--text-primary); border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                    برو به صفحه
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+    <script src="data.js?v=12"></script>
+    <script src="app.js?v=12"></script>
 </body>
 </html>
