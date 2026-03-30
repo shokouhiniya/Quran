@@ -186,6 +186,147 @@ function closeModal(event) {
     }
 }
 
+// Open juz - shows all surahs in that juz
+async function openJuz(juzNumber) {
+    const juz = JUZ_LIST.find(j => j.number === juzNumber);
+    if (!juz) return;
+    
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modalBody');
+    
+    document.getElementById('modalChapterName').textContent = `جز ${juzNumber}`;
+    document.getElementById('modalChapterInfo').textContent = `سوره‌های ${juz.chapters[0]} تا ${juz.chapters[juz.chapters.length - 1]}`;
+    
+    modal.classList.add('active');
+    modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری...</div>';
+    
+    try {
+        const showTrans = localStorage.getItem('show_translation') === 'true';
+        let html = '';
+        
+        for (const surahId of juz.chapters) {
+            const chapter = CHAPTERS.find(ch => ch.id === surahId);
+            
+            // Check if data is cached
+            const cachedData = localStorage.getItem('quran_surah_' + surahId);
+            let arabicVerses, persianVerses;
+            
+            if (cachedData) {
+                const parsed = JSON.parse(cachedData);
+                arabicVerses = parsed.arabic;
+                persianVerses = parsed.persian;
+            } else {
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/editions/quran-uthmani,fa.fooladvand`);
+                const data = await response.json();
+                
+                arabicVerses = data.data[0].ayahs;
+                persianVerses = data.data[1].ayahs;
+                
+                localStorage.setItem('quran_surah_' + surahId, JSON.stringify({
+                    arabic: arabicVerses,
+                    persian: persianVerses
+                }));
+            }
+            
+            // Add surah header
+            html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${chapter.name}</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">${chapter.transliteration} • ${chapter.translation}</div>
+            </div>`;
+            
+            // Add Bismillah if needed
+            if (surahId !== 1 && surahId !== 9) {
+                html += '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
+            }
+            
+            // Add verses
+            html += arabicVerses.map((verse, index) => `
+                <div class="verse-item">
+                    <span class="verse-number">${verse.numberInSurah}</span>
+                    <span class="verse-text">${verse.text}</span>
+                    <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
+                </div>
+            `).join('');
+            
+            html += '<div style="height: 20px;"></div>';
+        }
+        
+        modalBody.innerHTML = html;
+    } catch (error) {
+        modalBody.innerHTML = '<div class="loading">خطا در بارگذاری - لطفا اتصال اینترنت را بررسی کنید</div>';
+    }
+}
+
+// Page search functions
+function openPageSearch() {
+    document.getElementById('pageSearchModal').classList.add('active');
+    setTimeout(() => {
+        document.getElementById('pageNumberInput').focus();
+    }, 100);
+}
+
+function closePageSearch(event) {
+    if (!event || event.target.id === 'pageSearchModal') {
+        document.getElementById('pageSearchModal').classList.remove('active');
+    }
+}
+
+// Page to Surah/Ayah mapping (approximate - Quran has 604 pages in standard Mushaf)
+const PAGE_MAP = {};
+// Initialize page map - this is a simplified version
+// In reality, you'd need exact page-to-ayah mapping
+let currentPage = 1;
+for (let surahId = 1; surahId <= 114; surahId++) {
+    const chapter = CHAPTERS.find(ch => ch.id === surahId);
+    const pagesInSurah = Math.ceil(chapter.total_verses / 15); // Rough estimate
+    for (let i = 0; i < pagesInSurah; i++) {
+        PAGE_MAP[currentPage] = { surah: surahId, startVerse: i * 15 + 1 };
+        currentPage++;
+        if (currentPage > 604) break;
+    }
+    if (currentPage > 604) break;
+}
+
+async function goToPage() {
+    const pageNum = parseInt(document.getElementById('pageNumberInput').value);
+    
+    if (!pageNum || pageNum < 1 || pageNum > 604) {
+        alert('لطفا شماره صفحه معتبر (1-604) وارد کنید');
+        return;
+    }
+    
+    const pageInfo = PAGE_MAP[pageNum];
+    if (!pageInfo) {
+        alert('صفحه یافت نشد');
+        return;
+    }
+    
+    closePageSearch();
+    
+    // Open the surah for that page
+    await openChapter(pageInfo.surah);
+    
+    // Scroll to approximate verse
+    setTimeout(() => {
+        const verses = document.querySelectorAll('.verse-item');
+        if (verses[pageInfo.startVerse - 1]) {
+            verses[pageInfo.startVerse - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 500);
+}
+
+// Allow Enter key in page search
+document.addEventListener('DOMContentLoaded', () => {
+    const pageInput = document.getElementById('pageNumberInput');
+    if (pageInput) {
+        pageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                goToPage();
+            }
+        });
+    }
+});
+
 function renderChapter(chapter, showBookmark = true) {
     const bookmarked = isBookmarked(chapter.id);
     const downloaded = localStorage.getItem('quran_surah_' + chapter.id) ? true : false;
@@ -237,7 +378,7 @@ function renderJuz() {
     container.innerHTML = JUZ_LIST.map(juz => {
         const downloaded = juz.chapters.every(chId => localStorage.getItem('quran_surah_' + chId));
         return `
-            <div class="juz-item">
+            <div class="juz-item" onclick="openJuz(${juz.number})">
                 <div class="chapter-number">${juz.number}</div>
                 <div class="chapter-info">
                     <div class="juz-number">جز ${juz.number}</div>
