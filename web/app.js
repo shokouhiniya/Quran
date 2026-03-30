@@ -155,15 +155,62 @@ async function openChapter(chapterId) {
             html = '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
         }
         
-        html += arabicVerses.map((verse, index) => `
-            <div class="verse-item">
-                <span class="verse-number">${verse.numberInSurah}</span>
-                <span class="verse-text">${verse.text}</span>
-                <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
-            </div>
-        `).join('');
+        // Add page/juz indicator
+        html += '<div class="page-juz-indicator" id="pageJuzIndicator">صفحه: ... | جز: ...</div>';
+        
+        let currentPage = null;
+        let currentJuz = null;
+        
+        html += arabicVerses.map((verse, index) => {
+            let markers = '';
+            
+            // Add page marker if page changed
+            if (verse.page !== currentPage && currentPage !== null) {
+                markers += `<div class="page-marker">صفحه ${verse.page}</div>`;
+            }
+            currentPage = verse.page;
+            
+            // Add juz marker if juz changed
+            if (verse.juz !== currentJuz && currentJuz !== null) {
+                markers += `<div class="juz-marker">جز ${verse.juz}</div>`;
+            }
+            currentJuz = verse.juz;
+            
+            return `
+                ${markers}
+                <div class="verse-item" data-page="${verse.page}" data-juz="${verse.juz}">
+                    <span class="verse-number">${verse.numberInSurah}</span>
+                    <span class="verse-text">${verse.text}</span>
+                    <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
+                </div>
+            `;
+        }).join('');
         
         modalBody.innerHTML = html;
+        
+        // Update page/juz indicator on scroll
+        const indicator = document.getElementById('pageJuzIndicator');
+        if (indicator && arabicVerses.length > 0) {
+            indicator.textContent = `صفحه: ${arabicVerses[0].page} | جز: ${arabicVerses[0].juz}`;
+            
+            modalBody.addEventListener('scroll', () => {
+                const verses = modalBody.querySelectorAll('.verse-item');
+                const scrollTop = modalBody.scrollTop;
+                const modalTop = modalBody.getBoundingClientRect().top;
+                
+                for (let i = verses.length - 1; i >= 0; i--) {
+                    const verse = verses[i];
+                    const verseTop = verse.getBoundingClientRect().top - modalTop;
+                    
+                    if (verseTop <= 100) {
+                        const page = verse.getAttribute('data-page');
+                        const juz = verse.getAttribute('data-juz');
+                        indicator.textContent = `صفحه: ${page} | جز: ${juz}`;
+                        break;
+                    }
+                }
+            });
+        }
     } catch (error) {
         modalBody.innerHTML = '<div class="loading">خطا در بارگذاری - لطفا اتصال اینترنت را بررسی کنید</div>';
     }
@@ -202,7 +249,10 @@ async function openJuz(juzNumber) {
     
     try {
         const showTrans = localStorage.getItem('show_translation') === 'true';
-        let html = '';
+        let html = '<div class="page-juz-indicator" id="pageJuzIndicator">صفحه: ... | جز: ' + juzNumber + '</div>';
+        
+        let currentPage = null;
+        let currentJuz = null;
         
         for (const surahId of juz.chapters) {
             const chapter = CHAPTERS.find(ch => ch.id === surahId);
@@ -229,29 +279,66 @@ async function openJuz(juzNumber) {
             }
             
             // Add surah header
-            html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+            html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin: 16px 0; text-align: center;">
                 <div style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${chapter.name}</div>
                 <div style="font-size: 12px; color: var(--text-secondary);">${chapter.transliteration} • ${chapter.translation}</div>
             </div>`;
             
-            // Add Bismillah if needed
+            // Add Bismillah only at the beginning of surah header, not in verses
             if (surahId !== 1 && surahId !== 9) {
                 html += '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
             }
             
-            // Add verses
-            html += arabicVerses.map((verse, index) => `
-                <div class="verse-item">
-                    <span class="verse-number">${verse.numberInSurah}</span>
-                    <span class="verse-text">${verse.text}</span>
-                    <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
-                </div>
-            `).join('');
-            
-            html += '<div style="height: 20px;"></div>';
+            // Add verses with page/juz markers
+            arabicVerses.forEach((verse, index) => {
+                let markers = '';
+                
+                // Add page marker if page changed
+                if (verse.page !== currentPage && currentPage !== null) {
+                    markers += `<div class="page-marker">صفحه ${verse.page}</div>`;
+                }
+                currentPage = verse.page;
+                
+                // Add juz marker if juz changed
+                if (verse.juz !== currentJuz && currentJuz !== null) {
+                    markers += `<div class="juz-marker">جز ${verse.juz}</div>`;
+                }
+                currentJuz = verse.juz;
+                
+                html += `
+                    ${markers}
+                    <div class="verse-item" data-page="${verse.page}" data-juz="${verse.juz}">
+                        <span class="verse-number">${verse.numberInSurah}</span>
+                        <span class="verse-text">${verse.text}</span>
+                        <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
+                    </div>
+                `;
+            });
         }
         
         modalBody.innerHTML = html;
+        
+        // Update page/juz indicator on scroll
+        const indicator = document.getElementById('pageJuzIndicator');
+        if (indicator) {
+            modalBody.addEventListener('scroll', () => {
+                const verses = modalBody.querySelectorAll('.verse-item');
+                const scrollTop = modalBody.scrollTop;
+                const modalTop = modalBody.getBoundingClientRect().top;
+                
+                for (let i = verses.length - 1; i >= 0; i--) {
+                    const verse = verses[i];
+                    const verseTop = verse.getBoundingClientRect().top - modalTop;
+                    
+                    if (verseTop <= 100) {
+                        const page = verse.getAttribute('data-page');
+                        const juz = verse.getAttribute('data-juz');
+                        indicator.textContent = `صفحه: ${page} | جز: ${juz}`;
+                        break;
+                    }
+                }
+            });
+        }
     } catch (error) {
         modalBody.innerHTML = '<div class="loading">خطا در بارگذاری - لطفا اتصال اینترنت را بررسی کنید</div>';
     }
@@ -311,7 +398,7 @@ async function goToPage() {
         
         const showTrans = localStorage.getItem('show_translation') === 'true';
         
-        let html = '';
+        let html = `<div class="page-juz-indicator" id="pageJuzIndicator">صفحه: ${pageNum} | جز: ${firstAyah.juz}</div>`;
         let currentSurah = null;
         
         arabicAyahs.forEach((verse, index) => {
@@ -320,19 +407,19 @@ async function goToPage() {
                 currentSurah = verse.surah.number;
                 const ch = CHAPTERS.find(c => c.id === currentSurah);
                 
-                html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin: 16px 0; text-align: center;">
                     <div style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${ch.name}</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">${ch.transliteration} • ${ch.translation}</div>
                 </div>`;
                 
-                // Add Bismillah if it's the first ayah and not surah 1 or 9
+                // Add Bismillah only at surah header if it's the first ayah
                 if (verse.numberInSurah === 1 && currentSurah !== 1 && currentSurah !== 9) {
                     html += '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
                 }
             }
             
             html += `
-                <div class="verse-item">
+                <div class="verse-item" data-page="${verse.page}" data-juz="${verse.juz}">
                     <span class="verse-number">${verse.numberInSurah}</span>
                     <span class="verse-text">${verse.text}</span>
                     <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianAyahs[index].text}</div>

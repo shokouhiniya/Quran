@@ -121,10 +121,29 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            z-index: 10;
         }
         
         .search-page-btn:active {
             transform: scale(0.9);
+        }
+        
+        .download-all-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
         }
         
         .download-all-btn {
@@ -512,6 +531,37 @@
             line-height: 1.8;
         }
         
+        .page-marker {
+            border-bottom: 1px solid var(--border);
+            margin: 16px 0;
+            padding-bottom: 8px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        
+        .juz-marker {
+            border-bottom: 3px solid var(--accent-dark);
+            margin: 20px 0;
+            padding-bottom: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .page-juz-indicator {
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 5;
+        }
+        
         .verse-item {
             margin-bottom: 8px;
             padding: 0;
@@ -679,7 +729,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=7"></script>
-    <script src="app.js?v=7"></script>
+    <script src="data.js?v=8"></script>
+    <script src="app.js?v=8"></script>
 </body>
 </html>
