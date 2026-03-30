@@ -553,8 +553,12 @@
         .page-juz-indicator {
             font-size: 10px;
             color: var(--text-tertiary);
-            margin-top: 4px;
-            text-align: center;
+            display: inline;
+        }
+        
+        .page-juz-indicator::before {
+            content: " • ";
+            margin: 0 4px;
         }
         
         .verse-item {
@@ -690,8 +694,10 @@
                 <button class="modal-close" onclick="closeModal()">✕</button>
                 <div class="modal-title">
                     <div class="modal-chapter-name" id="modalChapterName"></div>
-                    <div class="modal-chapter-info" id="modalChapterInfo"></div>
-                    <div class="page-juz-indicator" id="pageJuzIndicator" style="display: none;">صفحه: ... | جز: ...</div>
+                    <div class="modal-chapter-info">
+                        <span id="modalChapterInfo"></span>
+                        <span class="page-juz-indicator" id="pageJuzIndicator" style="display: none;"></span>
+                    </div>
                 </div>
             </div>
             <div class="bismillah" id="modalBismillah" style="display: none;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
@@ -726,7 +732,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=13"></script>
-    <script src="app.js?v=13"></script>
+    <script src="data.js?v=14"></script>
+    <script src="app.js?v=14"></script>
 </body>
 </html>
