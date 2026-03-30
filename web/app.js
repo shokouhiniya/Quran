@@ -149,13 +149,21 @@ async function openChapter(chapterId) {
         
         const showTrans = localStorage.getItem('show_translation') === 'true';
         
-        modalBody.innerHTML = arabicVerses.map((verse, index) => `
+        // Add Bismillah at the top (except for Surah 1 and 9)
+        let html = '';
+        if (chapterId !== 1 && chapterId !== 9) {
+            html = '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
+        }
+        
+        html += arabicVerses.map((verse, index) => `
             <div class="verse-item">
                 <span class="verse-number">${verse.numberInSurah}</span>
                 <span class="verse-text">${verse.text}</span>
                 <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
             </div>
         `).join('');
+        
+        modalBody.innerHTML = html;
     } catch (error) {
         modalBody.innerHTML = '<div class="loading">خطا در بارگذاری - لطفا اتصال اینترنت را بررسی کنید</div>';
     }
@@ -180,6 +188,7 @@ function closeModal(event) {
 
 function renderChapter(chapter, showBookmark = true) {
     const bookmarked = isBookmarked(chapter.id);
+    const downloaded = localStorage.getItem('quran_surah_' + chapter.id) ? true : false;
     return `
         <div class="chapter-item" onclick="openChapter(${chapter.id})">
             <div class="chapter-number">${chapter.id}</div>
@@ -189,6 +198,9 @@ function renderChapter(chapter, showBookmark = true) {
                 <div class="chapter-meta">${chapter.translation} • ${chapter.total_verses} آیه</div>
             </div>
             ${showBookmark ? `
+                <button class="download-btn ${downloaded ? 'downloaded' : ''}" onclick="downloadSingleSurah(${chapter.id}, event)" title="${downloaded ? 'دانلود شده' : 'دانلود سوره'}">
+                    ${downloaded ? '✓' : '⬇'}
+                </button>
                 <button class="bookmark-btn ${bookmarked ? 'active' : ''}" onclick="toggleBookmark(${chapter.id}, event)">
                     ${bookmarked ? '⭐' : '☆'}
                 </button>
@@ -222,15 +234,21 @@ function renderChapters() {
 
 function renderJuz() {
     const container = document.getElementById('juz');
-    container.innerHTML = JUZ_LIST.map(juz => `
-        <div class="juz-item">
-            <div class="chapter-number">${juz.number}</div>
-            <div class="chapter-info">
-                <div class="juz-number">جز ${juz.number}</div>
-                <div class="juz-info">سوره‌های ${juz.chapters[0]} تا ${juz.chapters[juz.chapters.length - 1]}</div>
+    container.innerHTML = JUZ_LIST.map(juz => {
+        const downloaded = juz.chapters.every(chId => localStorage.getItem('quran_surah_' + chId));
+        return `
+            <div class="juz-item">
+                <div class="chapter-number">${juz.number}</div>
+                <div class="chapter-info">
+                    <div class="juz-number">جز ${juz.number}</div>
+                    <div class="juz-info">سوره‌های ${juz.chapters[0]} تا ${juz.chapters[juz.chapters.length - 1]}</div>
+                </div>
+                <button class="download-btn ${downloaded ? 'downloaded' : ''}" onclick="downloadJuz(${juz.number}, event)" title="${downloaded ? 'دانلود شده' : 'دانلود جز'}">
+                    ${downloaded ? '✓' : '⬇'}
+                </button>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function renderAll() {
@@ -274,6 +292,92 @@ function toggleDarkMode() {
 if (localStorage.getItem('dark_mode') === 'true') {
     document.body.classList.add('dark-mode');
     document.querySelector('.dark-mode-toggle').textContent = '☀️';
+}
+
+// Download single surah
+async function downloadSingleSurah(surahId, event) {
+    if (event) event.stopPropagation();
+    
+    const btn = event.target;
+    if (btn.classList.contains('downloading')) return;
+    
+    // Check if already downloaded
+    if (localStorage.getItem('quran_surah_' + surahId)) {
+        return;
+    }
+    
+    btn.classList.add('downloading');
+    btn.textContent = '⏳';
+    
+    try {
+        const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/editions/quran-uthmani,fa.fooladvand`);
+        const data = await response.json();
+        
+        const arabicVerses = data.data[0].ayahs;
+        const persianVerses = data.data[1].ayahs;
+        
+        localStorage.setItem('quran_surah_' + surahId, JSON.stringify({
+            arabic: arabicVerses,
+            persian: persianVerses
+        }));
+        
+        btn.classList.remove('downloading');
+        btn.classList.add('downloaded');
+        btn.textContent = '✓';
+        
+        updateDownloadButton();
+    } catch (error) {
+        btn.classList.remove('downloading');
+        btn.textContent = '⬇';
+        alert('خطا در دانلود. لطفا دوباره تلاش کنید.');
+    }
+}
+
+// Download entire juz
+async function downloadJuz(juzNumber, event) {
+    if (event) event.stopPropagation();
+    
+    const btn = event.target;
+    if (btn.classList.contains('downloading')) return;
+    
+    const juz = JUZ_LIST.find(j => j.number === juzNumber);
+    if (!juz) return;
+    
+    // Check if all surahs in juz are already downloaded
+    const allDownloaded = juz.chapters.every(chId => localStorage.getItem('quran_surah_' + chId));
+    if (allDownloaded) return;
+    
+    btn.classList.add('downloading');
+    btn.textContent = '⏳';
+    
+    for (const surahId of juz.chapters) {
+        // Skip if already downloaded
+        if (localStorage.getItem('quran_surah_' + surahId)) continue;
+        
+        try {
+            const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/editions/quran-uthmani,fa.fooladvand`);
+            const data = await response.json();
+            
+            const arabicVerses = data.data[0].ayahs;
+            const persianVerses = data.data[1].ayahs;
+            
+            localStorage.setItem('quran_surah_' + surahId, JSON.stringify({
+                arabic: arabicVerses,
+                persian: persianVerses
+            }));
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (error) {
+            console.error('Error downloading surah ' + surahId, error);
+        }
+    }
+    
+    btn.classList.remove('downloading');
+    btn.classList.add('downloaded');
+    btn.textContent = '✓';
+    
+    updateDownloadButton();
 }
 
 // Download all surahs for offline use
