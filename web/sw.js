@@ -1,10 +1,10 @@
-const CACHE_NAME = 'quran-v1';
+const CACHE_NAME = 'quran-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/app.js',
-  '/data.js',
-  '/manifest.json'
+  '/Quran/',
+  '/Quran/index.html',
+  '/Quran/app.js',
+  '/Quran/data.js',
+  '/Quran/manifest.json'
 ];
 
 self.addEventListener('install', event => {

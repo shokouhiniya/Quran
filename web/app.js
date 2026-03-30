@@ -124,12 +124,28 @@ async function openChapter(chapterId) {
     modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری...</div>';
     
     try {
-        // Get Arabic text with Persian translation
-        const response = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-uthmani,fa.fooladvand`);
-        const data = await response.json();
+        // Check if data is cached in localStorage
+        const cachedData = localStorage.getItem('quran_surah_' + chapterId);
+        let arabicVerses, persianVerses;
         
-        const arabicVerses = data.data[0].ayahs;
-        const persianVerses = data.data[1].ayahs;
+        if (cachedData) {
+            const parsed = JSON.parse(cachedData);
+            arabicVerses = parsed.arabic;
+            persianVerses = parsed.persian;
+        } else {
+            // Get Arabic text with Persian translation from API
+            const response = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-uthmani,fa.fooladvand`);
+            const data = await response.json();
+            
+            arabicVerses = data.data[0].ayahs;
+            persianVerses = data.data[1].ayahs;
+            
+            // Cache the data for offline use
+            localStorage.setItem('quran_surah_' + chapterId, JSON.stringify({
+                arabic: arabicVerses,
+                persian: persianVerses
+            }));
+        }
         
         const showTrans = localStorage.getItem('show_translation') === 'true';
         
@@ -141,7 +157,7 @@ async function openChapter(chapterId) {
             </div>
         `).join('');
     } catch (error) {
-        modalBody.innerHTML = '<div class="loading">خطا در بارگذاری</div>';
+        modalBody.innerHTML = '<div class="loading">خطا در بارگذاری - لطفا اتصال اینترنت را بررسی کنید</div>';
     }
 }
 
@@ -260,5 +276,100 @@ if (localStorage.getItem('dark_mode') === 'true') {
     document.querySelector('.dark-mode-toggle').textContent = '☀️';
 }
 
+// Download all surahs for offline use
+let isDownloading = false;
+
+async function downloadAllSurahs() {
+    if (isDownloading) return;
+    
+    const btn = document.getElementById('downloadAllBtn');
+    const alreadyDownloaded = checkOfflineStatus();
+    
+    if (alreadyDownloaded === 114) {
+        if (confirm('تمام سوره‌ها قبلا دانلود شده‌اند. آیا می‌خواهید دوباره دانلود کنید؟')) {
+            // Clear cache
+            for (let i = 1; i <= 114; i++) {
+                localStorage.removeItem('quran_surah_' + i);
+            }
+        } else {
+            return;
+        }
+    }
+    
+    isDownloading = true;
+    btn.classList.add('downloading');
+    btn.textContent = '0%';
+    
+    let downloaded = 0;
+    
+    for (let i = 1; i <= 114; i++) {
+        // Skip if already cached
+        if (localStorage.getItem('quran_surah_' + i)) {
+            downloaded++;
+            btn.textContent = Math.round((downloaded / 114) * 100) + '%';
+            continue;
+        }
+        
+        try {
+            const response = await fetch(`https://api.alquran.cloud/v1/surah/${i}/editions/quran-uthmani,fa.fooladvand`);
+            const data = await response.json();
+            
+            const arabicVerses = data.data[0].ayahs;
+            const persianVerses = data.data[1].ayahs;
+            
+            localStorage.setItem('quran_surah_' + i, JSON.stringify({
+                arabic: arabicVerses,
+                persian: persianVerses
+            }));
+            
+            downloaded++;
+            btn.textContent = Math.round((downloaded / 114) * 100) + '%';
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (error) {
+            console.error('Error downloading surah ' + i, error);
+        }
+    }
+    
+    isDownloading = false;
+    btn.classList.remove('downloading');
+    btn.classList.add('completed');
+    btn.textContent = '✓';
+    
+    setTimeout(() => {
+        btn.classList.remove('completed');
+        updateDownloadButton();
+    }, 2000);
+}
+
+function checkOfflineStatus() {
+    let count = 0;
+    for (let i = 1; i <= 114; i++) {
+        if (localStorage.getItem('quran_surah_' + i)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+function updateDownloadButton() {
+    const btn = document.getElementById('downloadAllBtn');
+    if (!btn) return;
+    
+    const downloaded = checkOfflineStatus();
+    if (downloaded === 114) {
+        btn.textContent = '✓';
+        btn.title = 'تمام سوره‌ها دانلود شده';
+    } else if (downloaded > 0) {
+        btn.textContent = '📥';
+        btn.title = `${downloaded} از 114 سوره دانلود شده`;
+    } else {
+        btn.textContent = '📥';
+        btn.title = 'دانلود برای استفاده آفلاین';
+    }
+}
+
 // Initial render
 renderAll();
+updateDownloadButton();

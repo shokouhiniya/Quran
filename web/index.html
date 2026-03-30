@@ -106,6 +106,40 @@
             transform: translateX(-50%) scale(0.9);
         }
         
+        .download-all-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .download-all-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .download-all-btn.downloading {
+            animation: pulse 1s infinite;
+        }
+        
+        .download-all-btn.completed {
+            background: #86EFAC;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
         .header-center {
             text-align: center;
         }
@@ -519,6 +553,9 @@
                 <div class="header-title">قرآن کریم</div>
                 <div class="header-subtitle">114 سوره • 30 جز</div>
             </div>
+            <button class="download-all-btn" id="downloadAllBtn" onclick="downloadAllSurahs()" title="دانلود برای استفاده آفلاین">
+                📥
+            </button>
         </div>
         
         <div class="tabs">
@@ -559,7 +596,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script src="data.js?v=3"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
