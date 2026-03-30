@@ -271,22 +271,6 @@ function closePageSearch(event) {
     }
 }
 
-// Page to Surah/Ayah mapping (approximate - Quran has 604 pages in standard Mushaf)
-const PAGE_MAP = {};
-// Initialize page map - this is a simplified version
-// In reality, you'd need exact page-to-ayah mapping
-let currentPage = 1;
-for (let surahId = 1; surahId <= 114; surahId++) {
-    const chapter = CHAPTERS.find(ch => ch.id === surahId);
-    const pagesInSurah = Math.ceil(chapter.total_verses / 15); // Rough estimate
-    for (let i = 0; i < pagesInSurah; i++) {
-        PAGE_MAP[currentPage] = { surah: surahId, startVerse: i * 15 + 1 };
-        currentPage++;
-        if (currentPage > 604) break;
-    }
-    if (currentPage > 604) break;
-}
-
 async function goToPage() {
     const pageNum = parseInt(document.getElementById('pageNumberInput').value);
     
@@ -295,24 +279,71 @@ async function goToPage() {
         return;
     }
     
-    const pageInfo = PAGE_MAP[pageNum];
-    if (!pageInfo) {
-        alert('صفحه یافت نشد');
-        return;
-    }
-    
     closePageSearch();
     
-    // Open the surah for that page
-    await openChapter(pageInfo.surah);
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modalBody');
     
-    // Scroll to approximate verse
-    setTimeout(() => {
-        const verses = document.querySelectorAll('.verse-item');
-        if (verses[pageInfo.startVerse - 1]) {
-            verses[pageInfo.startVerse - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('modalChapterName').textContent = `صفحه ${pageNum}`;
+    document.getElementById('modalChapterInfo').textContent = 'در حال بارگذاری...';
+    
+    modal.classList.add('active');
+    modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری صفحه...</div>';
+    
+    try {
+        // Get page data from API
+        const response = await fetch(`https://api.alquran.cloud/v1/page/${pageNum}/editions/quran-uthmani,fa.fooladvand`);
+        const data = await response.json();
+        
+        if (data.code !== 200) {
+            throw new Error('Page not found');
         }
-    }, 500);
+        
+        const arabicAyahs = data.data[0].ayahs;
+        const persianAyahs = data.data[1].ayahs;
+        
+        // Get first ayah info for title
+        const firstAyah = arabicAyahs[0];
+        const chapter = CHAPTERS.find(ch => ch.id === firstAyah.surah.number);
+        
+        document.getElementById('modalChapterName').textContent = `صفحه ${pageNum}`;
+        document.getElementById('modalChapterInfo').textContent = `${chapter.name} • آیه ${firstAyah.numberInSurah}`;
+        
+        const showTrans = localStorage.getItem('show_translation') === 'true';
+        
+        let html = '';
+        let currentSurah = null;
+        
+        arabicAyahs.forEach((verse, index) => {
+            // Add surah header if changed
+            if (currentSurah !== verse.surah.number) {
+                currentSurah = verse.surah.number;
+                const ch = CHAPTERS.find(c => c.id === currentSurah);
+                
+                html += `<div style="background: var(--bg-card); padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                    <div style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${ch.name}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">${ch.transliteration} • ${ch.translation}</div>
+                </div>`;
+                
+                // Add Bismillah if it's the first ayah and not surah 1 or 9
+                if (verse.numberInSurah === 1 && currentSurah !== 1 && currentSurah !== 9) {
+                    html += '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
+                }
+            }
+            
+            html += `
+                <div class="verse-item">
+                    <span class="verse-number">${verse.numberInSurah}</span>
+                    <span class="verse-text">${verse.text}</span>
+                    <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianAyahs[index].text}</div>
+                </div>
+            `;
+        });
+        
+        modalBody.innerHTML = html;
+    } catch (error) {
+        modalBody.innerHTML = '<div class="loading">خطا در بارگذاری صفحه</div>';
+    }
 }
 
 // Allow Enter key in page search
