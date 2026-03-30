@@ -155,9 +155,6 @@ async function openChapter(chapterId) {
             html = '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
         }
         
-        // Add page/juz indicator
-        html += '<div class="page-juz-indicator" id="pageJuzIndicator">صفحه: ... | جز: ...</div>';
-        
         let currentPage = null;
         let currentJuz = null;
         
@@ -191,6 +188,7 @@ async function openChapter(chapterId) {
         // Update page/juz indicator on scroll
         const indicator = document.getElementById('pageJuzIndicator');
         if (indicator && arabicVerses.length > 0) {
+            indicator.style.display = 'block';
             indicator.textContent = `صفحه: ${arabicVerses[0].page} | جز: ${arabicVerses[0].juz}`;
             
             modalBody.addEventListener('scroll', () => {
