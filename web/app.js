@@ -131,7 +131,7 @@ async function openChapter(chapterId) {
         const arabicVerses = data.data[0].ayahs;
         const persianVerses = data.data[1].ayahs;
         
-        const showTrans = localStorage.getItem('show_translation') !== 'false';
+        const showTrans = localStorage.getItem('show_translation') === 'true';
         
         modalBody.innerHTML = arabicVerses.map((verse, index) => `
             <div class="verse-item">
@@ -235,9 +235,9 @@ document.addEventListener('keydown', (e) => {
 
 // Initialize translation switch state
 document.addEventListener('DOMContentLoaded', () => {
-    const showTrans = localStorage.getItem('show_translation') !== 'false';
+    const showTrans = localStorage.getItem('show_translation') === 'true';
     const switchEl = document.getElementById('translationSwitch');
-    if (switchEl && !showTrans) {
+    if (!showTrans) {
         switchEl.classList.remove('active');
     }
 });
