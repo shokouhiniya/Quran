@@ -115,10 +115,18 @@ function showTab(index) {
 async function openChapter(chapterId) {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modalBody');
+    const bismillahEl = document.getElementById('modalBismillah');
     const chapter = CHAPTERS.find(ch => ch.id === chapterId);
     
     document.getElementById('modalChapterName').textContent = chapter.name;
     document.getElementById('modalChapterInfo').textContent = `${chapter.transliteration} • ${chapter.translation}`;
+    
+    // Show Bismillah except for Surah 1 and 9
+    if (chapterId !== 1 && chapterId !== 9) {
+        bismillahEl.style.display = 'block';
+    } else {
+        bismillahEl.style.display = 'none';
+    }
     
     modal.classList.add('active');
     modalBody.innerHTML = '<div class="loading"><div class="spinner"></div>در حال بارگذاری...</div>';
@@ -149,12 +157,7 @@ async function openChapter(chapterId) {
         
         const showTrans = localStorage.getItem('show_translation') === 'true';
         
-        // Add Bismillah at the top (except for Surah 1 and 9)
         let html = '';
-        if (chapterId !== 1 && chapterId !== 9) {
-            html = '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>';
-        }
-        
         let currentPage = null;
         let currentJuz = null;
         
@@ -173,11 +176,19 @@ async function openChapter(chapterId) {
             }
             currentJuz = verse.juz;
             
+            // Remove Bismillah from first verse if it exists
+            let verseText = verse.text;
+            if (verse.numberInSurah === 1 && chapterId !== 1 && chapterId !== 9) {
+                verseText = verseText.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ\s*/g, '');
+                verseText = verseText.replace(/^بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\s*/g, '');
+                verseText = verseText.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/g, '');
+            }
+            
             return `
                 ${markers}
                 <div class="verse-item" data-page="${verse.page}" data-juz="${verse.juz}">
                     <span class="verse-number">${verse.numberInSurah}</span>
-                    <span class="verse-text">${verse.text}</span>
+                    <span class="verse-text">${verseText}</span>
                     <div class="verse-trans ${showTrans ? '' : 'hidden'}">${persianVerses[index].text}</div>
                 </div>
             `;
